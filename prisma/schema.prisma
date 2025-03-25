@@ -13,33 +13,57 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id  String  @id @default(uuid())
-  username String @unique
-  email String @unique
-  password  String
-  admin Boolean 
-  posts Post[]
-  createdAt DateTime  @default(now())
+model User {
+  id         String    @id @default(uuid())
+  username   String    @unique
+  email      String    @unique
+  password   String
+  admin      Boolean
+  profilePic String
+  posts      Post[]
+  createdAt  DateTime  @default(now())
+  likes      Like[]
+  comments   Comment[]
 }
 
-model Post{
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
+model Post {
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   imageUrl  String
   caption   String
-  lat       Float?    // latitude
-  lng     Float?    // longitude
-  color Color?
-  size  Size?
-  age Age?
-  mood Mood?
+  lat       Float? // latitude
+  lng       Float? // longitude
+  color     Color?
+  size      Size?
+  age       Age?
+  mood      Mood?
+  createdAt DateTime  @default(now())
+  Comment   Comment[]
+  Like      Like[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  text      String
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
 
 // add enums
-enum Color{
+enum Color {
   BLACK
   ORANGE
   GRAY
@@ -51,7 +75,7 @@ enum Color{
   TORTOISESHELL
 }
 
-enum Mood{
+enum Mood {
   FRIENDLY
   SCARED
   CURIOUS
@@ -61,16 +85,15 @@ enum Mood{
   ALERT
 }
 
-enum Size{
+enum Size {
   SMALL
   MEDIUM
   LARGE
   CHONKY
 }
 
-enum Age{
+enum Age {
   KITTEN
   ADULT
   SENIOR
 }
-

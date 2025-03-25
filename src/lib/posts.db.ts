@@ -19,7 +19,7 @@ const postSchema = z.object({
 })
 
 const createPostSchema = z.object({
-    imageUrl: z.string(),  // optional rn, but should not be
+    imageUrl: z.string().nullable(),  // optional rn, but should not be
     caption: z.string(),// optional rn, but should not be
     lat: z.number(),  //optional
     lng: z.number(),//optional
@@ -41,13 +41,6 @@ export async function deletePost(postId: string, userId: string) {
         });
     console.log(post);
 }
-
-export async function updatePost(postId: string, userId: string, updatedPost: z.infer<typeof createPostSchema>):Promise<Post| null> {
-    
-
-    return null
-}
-
 export async function getAllPosts(limit=10, offset?: number) {
     const posts = await prisma.post.findMany(
         {
@@ -68,7 +61,6 @@ export async function getPostById(postId: string) {
 }
 
 export async function createPost(post: z.infer<typeof createPostSchema>, userId: string) {
-    const safeImageUrl = xss(post.imageUrl);
     const safeCaption = xss(post.caption);
 
     // todo: add the enums to the database
@@ -76,11 +68,38 @@ export async function createPost(post: z.infer<typeof createPostSchema>, userId:
     const postInfo = await prisma.post.create({
         data: {
             userId: userId,
-            imageUrl: safeImageUrl,
+            imageUrl: post.imageUrl ?? null,
             caption: safeCaption,
             lat: post.lat,
-            lng: post.lng
+            lng: post.lng,
+            color: post.color,
+            mood: post.mood,
+            size: post.size,
+            age: post.age
+
         }
     });
     return postInfo ?? null;
+}
+
+export async function updatePost(postId: string, userId: string, post: z.infer<typeof createPostSchema>) {
+    const updatedPost = await prisma.post.update({
+        where: {
+            id: postId,
+            userId: userId
+        },
+        data: {
+            imageUrl: post.imageUrl ?? "",
+            caption: post.caption,
+            lat: post.lat,
+            lng: post.lng,
+            color: post.color,
+            mood: post.mood,
+            size: post.size,
+            age: post.age
+        }
+    })
+
+    return updatedPost ?? null;
+
 }

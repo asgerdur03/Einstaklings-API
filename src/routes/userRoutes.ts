@@ -3,7 +3,7 @@ import { Hono } from "hono";
 
 import { authMiddleware, adminMiddleware } from "../middleware/authMiddleware.js";
 
-import { registerUser, validateUser, login, getAllUsers , findUserById} from "../lib/users.db.js";
+import { registerUser, validateUser, login, getAllUsers , findUserById, updateUser, deleteUser} from "../lib/users.db.js";
 
 
 const userRoutes = new Hono<{Variables: {user: AuthenticatedUser}}>();
@@ -12,7 +12,7 @@ interface AuthenticatedUser {
     id: string;
     admin: boolean;
 }
-
+// login route, returns the token✅
 userRoutes.post("/login", async(c) => {
     const userToLogin = await c.req.json();
     
@@ -30,6 +30,7 @@ userRoutes.post("/login", async(c) => {
     }    
 });
 
+// register new user if name is not taken ✅
 userRoutes.post("/register", async (c) => {
     let userToCreate: unknown;
 
@@ -46,12 +47,16 @@ userRoutes.post("/register", async (c) => {
     }
 
     const newUser = await registerUser(validUser.data);
+    if (newUser) {
+        const {password, ...rest} = newUser
+        return c.json( {user: rest });
+    }
 
-    return c.json({ message: "POST /user/register", user: newUser });
+    //return c.json({ message: "POST /user/register", user: newUser });
     
 });
 
-// admin route, get all users
+// admin route, get all users ✅
 userRoutes.get("/", authMiddleware, adminMiddleware, async (c) => {
     const user = c.get("user") as AuthenticatedUser;
     if (!user || !user.admin) {
@@ -59,35 +64,41 @@ userRoutes.get("/", authMiddleware, adminMiddleware, async (c) => {
     }
     const users = await getAllUsers();
 
-    return c.json({ message: "GET /user/", users: users ?? [] });
+    return c.json({data:users});
 })
 
 
-// get the logged in user
+// get the logged in user ✅
 userRoutes.get("/me", authMiddleware, async (c) => {
     const user = c.get("user") as AuthenticatedUser;
-
     if (!user) {
         return c.json({ error: "not logged in" }, 401);
     }
-
     const userId = user.id;
     const userInfo = await findUserById(userId);
 
-
-    return c.json({ message: "GET /user/:id", user: userInfo });
+    return c.json({data: userInfo});
 })
 
-// edit the logged in users info
-userRoutes.post("/me", authMiddleware, async (c) => {
-    return c.json({ message: "POST /user/me/:id" });
+// edit the logged in users info ✅
+userRoutes.patch("/me", authMiddleware, async (c) => {
+    const user = c.get("user") as AuthenticatedUser;
+    const userId = user.id;
+
+    const updatedUser = await c.req.json();
+    const updatedUserInfo = await updateUser(userId, updatedUser);
+
+    return c.json({data: updatedUserInfo});
 })
 
-// delete logged in users account
+// delete logged in users account ✅
 userRoutes.delete("/me",  authMiddleware, async (c) => {
-    return c.json({ message: "DELETE /user/me/:id" });
-})
+    const user = c.get("user") as AuthenticatedUser;
+    const userId = user.id;
 
+    await deleteUser(userId);
+    return c.json({ message: "DELETE /user/me/" });
+})
 
 // TODO: maybe add some admin routes, like deleting users
 

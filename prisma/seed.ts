@@ -1,54 +1,90 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-import * as bcrypt from "bcrypt"
-
+import bcrypt from 'bcrypt';
 
 async function main() {
-    // create 10 users
-    for (let i = 0; i < 10; i++) {
-        await prisma.user.create({
+    // Create 3 users
+    const hashedPassword = await bcrypt.hash('password', 10);
+    const users = await Promise.all([
+        prisma.user.create({
             data: {
-                username: `user${i}`,
-                email: `user${i}@example.com`,
-                password: `password${i}`,
+                username: 'admin',
+                email: 'admin@admin.com',
+                password: hashedPassword,
+                admin: true,
+                profilePic: 'https://i.pravatar.cc/150?img=1',
+            },
+        }),
+        prisma.user.create({
+            data: {
+                username: 'slay',
+                email: 'slay',
+                password: hashedPassword,
                 admin: false,
+                profilePic: 'https://i.pravatar.cc/150?img=2',
             },
-        });
-    }
-
-    // create admin user
-    const hashedPassword = await bcrypt.hash("password", 10);
-    const user = await prisma.user.create({
-        data: {
-            username: "admin",
-            email: "admin@admin.com",
-            password: hashedPassword,
-            admin: true,
-        },
-    });
-
-
-    // create 10 posts
-    for (let i = 0; i < 10; i++) {
-        await prisma.post.create({
+        }),
+        prisma.user.create({
             data: {
-                userId: user.id,
-                imageUrl: `https://picsum.photos/200/300?random=${i}`,
-                caption: `Post ${i}`,
-                lat: 0,
-                lng: 0,
+                username: 'whiskers',
+                email: 'whiskers@cats.com',
+                password: 'ilovecats',
+                admin: false,
+                profilePic: 'https://i.pravatar.cc/150?img=3',
             },
-        });
-    }
+        }),
+    ]);
+
+    // Create 3 posts (1 per user)
+    const posts = await Promise.all(
+        users.map((user, i) =>
+            prisma.post.create({
+                data: {
+                    userId: user.id,
+                    imageUrl: `https://picsum.photos/200/300?random=${i + 1}`,
+                    caption: `Post #${i + 1} by ${user.username}`,
+                    color: 'CALICO',
+                    mood: 'PLAYFUL',
+                    size: 'MEDIUM',
+                    age: 'ADULT',
+                },
+            })
+        )
+    );
+
+    // Create 2 comments per post
+    const allComments = await Promise.all(
+        posts.flatMap((post) =>
+            users.slice(0, 2).map((user) =>
+                prisma.comment.create({
+                    data: {
+                        postId: post.id,
+                        userId: user.id,
+                        text: `Nice post, ${post.caption}!`,
+                    },
+                })
+            )
+        )
+    );
+
+    // Create 1 like per post by the last user
+    const allLikes = await Promise.all(
+        posts.map((post) =>
+            prisma.like.create({
+                data: {
+                    postId: post.id,
+                    userId: users[2].id,
+                },
+            })
+        )
+    );
+
+    console.log('✅ Seed complete!');
 }
 
 main()
-    .then(async () => {
-        await prisma.$disconnect();
-    })
-    .catch(async (e) => {
+    .catch((e) => {
         console.error(e);
-        await prisma.$disconnect();
         process.exit(1);
     })
-    
+    .finally(() => prisma.$disconnect());

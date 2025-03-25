@@ -21,6 +21,7 @@ const createUserSchema = z.object({
     username: z.string(),
     email: z.string(),
     password: z.string(),
+    profilePic: z.string()
 })
 
 type User = z.infer<typeof userSchema>
@@ -49,7 +50,8 @@ export async function registerUser(body: z.infer<typeof createUserSchema>): Prom
             username: safeUsername,
             email: safeEmail,
             password: password,
-            admin: false
+            admin: false,
+            profilePic: body.profilePic
         }
     })
     return user ?? null;
@@ -71,8 +73,6 @@ export async function login(username: string, email: string, password: string) {
     }
 
     const token =  jwt.sign({ id: user.id, admin: user.admin }, SECRET_KEY, { expiresIn: "3h" });
-
-    console.log(token);
 
     return token;
 
@@ -106,3 +106,35 @@ export async function validateUser(user: unknown) {
     return result;
 
 }
+
+
+export async function updateUser(userId: string, body: z.infer<typeof createUserSchema>) {
+    const safeUsername = xss(body.username);
+    const safeEmail = xss(body.email);
+    const safePassword = xss(body.password);
+    const safeProfilePic = xss(body.profilePic);
+
+    const user = await prisma.user.update({
+        where: {
+            id: userId
+        },
+        data: {
+            username: safeUsername,
+            email: safeEmail,
+            password: safePassword,
+            profilePic: safeProfilePic
+        }
+    });
+    return user ?? null;
+
+}
+
+export async function deleteUser(userId: string) {
+    const user = await prisma.user.delete({
+        where: {
+            id: userId
+        }
+    });
+    return user ?? null;
+}
+

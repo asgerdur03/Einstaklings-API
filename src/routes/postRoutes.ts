@@ -11,35 +11,24 @@ interface AuthenticatedUser {
     admin: boolean;
 }
 
-// all posts for feed, paginated
-postRoutes.get("/", authMiddleware, async (c) => {
+// all posts for feed, paginated ✅
+postRoutes.get("/", async (c) => {
     // not user specific, but to view you have to be logged in
-    const user = c.get("user") as AuthenticatedUser;
-    if (!user) {
-        return c.json({ error: "not logged in" }, 401);
-    }
-
     const posts = await getAllPosts();
 
-
-    return c.json({ message: "GET /posts", posts: posts });
+    return c.json({data: posts});
 })
 
-//get single post
-postRoutes.get("/:id", authMiddleware,  async (c) => {
+//get single post ✅
+postRoutes.get("/:id",async (c) => {
     const postId = c.req.param("id");
-    const user = c.get("user") as AuthenticatedUser;
-    if (!user) {
-        return c.json({ error: "not logged in" }, 401);
-    }
 
     const post = await getPostById(postId);
 
-    return c.json({ message: "GET /posts/:id", post: post
-    });
+    return c.json({data: post});
 })
 
-// create a new post
+// create a new post ✅
 postRoutes.post("/", authMiddleware, async (c) => {
     const user = c.get("user") as AuthenticatedUser;
     const userId = user.id;
@@ -48,10 +37,10 @@ postRoutes.post("/", authMiddleware, async (c) => {
 
     const post = await createPost(newPost, userId);
 
-    return c.json({ message: "POST /posts", post: post });
+    return c.json({data: post});
 })
 
-// update a post
+// update a post ✅
 postRoutes.patch("/:id", authMiddleware, async (c) => {
     const postId = c.req.param("id");
     const user = c.get("user") as AuthenticatedUser;
@@ -63,10 +52,10 @@ postRoutes.patch("/:id", authMiddleware, async (c) => {
 
 
 
-    return c.json({ message: "PATCH /posts/:id", post: updatedPost });
+    return c.json({data: updatedPost});
 })
 
-// delete a post
+// delete a post ✅
 postRoutes.delete("/:id", authMiddleware, async (c) => {
     const postId = c.req.param("id");
     const user = c.get("user") as AuthenticatedUser;
