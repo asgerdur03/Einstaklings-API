@@ -21,10 +21,12 @@ npx prisma db seed
 ```
 ## TODO
 
-Error handeling, so program returns error, but does not just crash
+- Error handeling, so program returns error, but does not just crash
+- Add image upload routes
 
 ## Routes
 
+- [x] `/upload` Uploads images to cloudinary
 
 `/users/...`
 - [x] `POST /login`
@@ -34,7 +36,7 @@ Error handeling, so program returns error, but does not just crash
 - [x] `PATCH /me/` Edit logged in user info (nota id eða ekki?)
 - [x] `DELETE /me/` Delete my account + all data
 ---
-`/posts`
+`/posts` TODO: add the file upload, rn its just link
 - [x] `GET /` get all posts
 - [x] `GET /:id` Get single post
 - [x] `POST /` Create post

@@ -1,8 +1,11 @@
 
-
+import { cloudinary } from "../lib/cloudinary.js";
+import { IncomingForm } from "formidable";
 import { Hono } from "hono";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import {deletePost, updatePost, getAllPosts, getPostById, createPost, getPostsByUserId} from "../lib/posts.db.js"
+import { raw } from "@prisma/client/runtime/library";
+import { use } from "hono/jsx";
 
 const postRoutes = new Hono<{Variables: {user: AuthenticatedUser}}>()
 
@@ -33,12 +36,47 @@ postRoutes.post("/", authMiddleware, async (c) => {
     const user = c.get("user") as AuthenticatedUser;
     const userId = user.id;
 
-    const newPost = await c.req.json();
+    const body = await c.req.json();
 
-    const post = await createPost(newPost, userId);
+    const newPost = await createPost(body, userId);
 
-    return c.json({data: post});
-})
+    return c.json({data: newPost});
+
+});
+
+/*
+    const color = body.color?.toString() as
+    | 'BLACK' | 'ORANGE' | 'GRAY' | 'WHITE'
+    | 'MIXED' | 'BROWN' | 'TABBY' | 'CALICO' | 'TORTOISESHELL' | null;
+
+const mood = body.mood?.toString() as
+    | 'FRIENDLY' | 'SCARED' | 'CURIOUS' | 'PLAYFUL'
+    | 'ANGRY' | 'SLEEPY' | 'ALERT' | null;
+
+const size = body.size?.toString() as 'SMALL' | 'MEDIUM' | 'LARGE' | 'CHONKY' | null;
+const age = body.age?.toString() as 'KITTEN' | 'ADULT' | 'SENIOR' | null;
+
+    const newPost = {
+        userId: userId,
+        imageUrl: cloudinaryResult.secure_url.toString(),
+        caption: body.caption.toString(),
+        lat: parseFloat(body.lat.toString()), //body.lat,
+        lng: parseFloat(body.lng.toString()), //body.lng.toString(),
+        color: color,
+        mood:mood,
+        size: size,
+        age: age,
+    }*/
+
+
+
+
+
+
+
+    
+
+
 
 // update a post ✅
 postRoutes.patch("/:id", authMiddleware, async (c) => {

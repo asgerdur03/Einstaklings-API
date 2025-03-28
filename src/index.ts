@@ -29,6 +29,45 @@ app.get('/', (c) => {
   return c.json(routes)
 })
 
+import { cloudinary } from './lib/cloudinary.js'
+
+app.post('/upload', async(c) => {
+  const body = await c.req.parseBody();
+  const files = body.image;
+
+  console.log("files: " , files);
+
+  if (!files || (Array.isArray(files) && files.length === 0)) {
+    return c.json({ error: 'No files uploaded' }, 400);
+  }
+
+  const fileArray = Array.isArray(files) ? files : [files];
+
+  const processedImages = await Promise.all(
+    fileArray.map(async (file) => {
+      const buffer = Buffer.from(await file.arrayBuffer());
+
+      const base64 = buffer.toString('base64');
+
+      const result = await cloudinary.uploader.upload(`data:${file.type};base64,${base64}`, {
+        resource_type: 'image',
+        folder: 'cats',
+      });
+
+
+      return {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        url: result.secure_url
+      }
+    
+  }))
+  
+  return c.json({image: processedImages});
+  
+})
+
 
 app.route('/users', userRoutes);
 app.route('/posts', postRoutes);
