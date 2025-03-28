@@ -17,14 +17,31 @@ export async function createLike(postId: string, userId: string) {
     return like ?? null;
 }
 
-export async function deleteLike(postId: string, userId: string) {
-    const like = await prisma.like.deleteMany(
-        {where: 
-            { 
-                postId: postId, 
-                userId: userId 
-            } 
+export async function toggleLike(postId: string, userId: string) {
+    const like = await prisma.like.findFirst({
+        where: { postId, userId },
+    });
+
+    if (like) {
+        await prisma.like.delete({
+            where: {id : like.id},
         });
-    return like ?? null;
+        return {liked: false}
+    } else {
+        await prisma.like.create({
+            data: {
+                postId: postId,
+                userId: userId,
+            },
+        });
+        return {liked: true}
+    }
+
 }
 
+export async function getLikesByPostId(postId: string) {
+    const likes = await prisma.like.findMany({
+        where: { postId },
+    });
+    return likes ?? null;
+}

@@ -1,7 +1,6 @@
 import prisma from "./client.js";
 import {z} from "zod"
 import xss from "xss";
-import { Agent } from "http";
 
 
 const postSchema = z.object({
@@ -9,24 +8,24 @@ const postSchema = z.object({
     userId: z.string(),
     imageUrl: z.string(),
     caption: z.string(),
-    lat: z.number(),
-    lng: z.number(),
-    color: z.enum(["BLACK", "ORANGE", "GRAY", "WHITE", "MIXED", "BROWN", "TABBY", "CALICO", "TORTOISESHELL"]),
-    mood: z.enum(["FRIENDLY", "SCARED", "CURIOUS", "PLAYFUL", "ANGRY", "SLEEPY", "ALERT"]),
-    size: z.enum(["SMALL", "MEDIUM", "LARGE", "CHONKY"]),
-    age: z.enum(["KITTEN", "ADULT", "SENIOR"]),
+    lat: z.number().nullable(),
+    lng: z.number().nullable(),
+    color: z.enum(["BLACK", "ORANGE", "GRAY", "WHITE", "MIXED", "BROWN", "TABBY", "CALICO", "TORTOISESHELL"]).nullable(),
+    mood: z.enum(["FRIENDLY", "SCARED", "CURIOUS", "PLAYFUL", "ANGRY", "SLEEPY", "ALERT"]).nullable(),
+    size: z.enum(["SMALL", "MEDIUM", "LARGE", "CHONKY"]).nullable(),
+    age: z.enum(["KITTEN", "ADULT", "SENIOR"]).nullable(),
     createdAt: z.date()
 })
 
 const createPostSchema = z.object({
-    imageUrl: z.string().nullable(),  // optional rn, but should not be
-    caption: z.string(),// optional rn, but should not be
-    lat: z.number(),  //optional
+    imageUrl: z.string(), 
+    caption: z.string(),
+    lat: z.number().nullable(),  //optional
     lng: z.number(),//optional
-    color: z.enum(["BLACK", "ORANGE", "GRAY", "WHITE", "MIXED", "BROWN", "TABBY", "CALICO", "TORTOISESHELL"]),
-    mood: z.enum(["FRIENDLY", "SCARED", "CURIOUS", "PLAYFUL", "ANGRY", "SLEEPY", "ALERT"]),
-    size: z.enum(["SMALL", "MEDIUM", "LARGE", "CHONKY"]),
-    age: z.enum(["KITTEN", "ADULT", "SENIOR"]),
+    color: z.enum(["BLACK", "ORANGE", "GRAY", "WHITE", "MIXED", "BROWN", "TABBY", "CALICO", "TORTOISESHELL"]).nullable(),
+    mood: z.enum(["FRIENDLY", "SCARED", "CURIOUS", "PLAYFUL", "ANGRY", "SLEEPY", "ALERT"]).nullable(),
+    size: z.enum(["SMALL", "MEDIUM", "LARGE", "CHONKY"]).nullable(),
+    age: z.enum(["KITTEN", "ADULT", "SENIOR"]).nullable(),
 })
 
 type Post = z.infer<typeof postSchema>
@@ -41,7 +40,7 @@ export async function deletePost(postId: string, userId: string) {
         });
     console.log(post);
 }
-export async function getAllPosts(limit=10, offset?: number) {
+export async function getAllPosts(limit=10, offset?: number): Promise<Array<Post>|null> {
     const posts = await prisma.post.findMany(
         {
             take: limit,
@@ -51,7 +50,7 @@ export async function getAllPosts(limit=10, offset?: number) {
     return posts ?? null;
 }
 
-export async function getPostById(postId: string) {
+export async function getPostById(postId: string):Promise<Post|null> {
     const post = await prisma.post.findUnique({
         where: {
             id: postId
@@ -60,15 +59,13 @@ export async function getPostById(postId: string) {
     return post ?? null;
 }
 
-export async function createPost(post: z.infer<typeof createPostSchema>, userId: string) {
+export async function createPost(post: z.infer<typeof createPostSchema>, userId: string): Promise<Post|null> {
     const safeCaption = xss(post.caption);
-
-    // todo: add the enums to the database
 
     const postInfo = await prisma.post.create({
         data: {
             userId: userId,
-            imageUrl: post.imageUrl ?? null,
+            imageUrl: post.imageUrl,
             caption: safeCaption,
             lat: post.lat,
             lng: post.lng,
@@ -82,7 +79,7 @@ export async function createPost(post: z.infer<typeof createPostSchema>, userId:
     return postInfo ?? null;
 }
 
-export async function updatePost(postId: string, userId: string, post: z.infer<typeof createPostSchema>) {
+export async function updatePost(postId: string, userId: string, post: z.infer<typeof createPostSchema>): Promise<Post|null> {
     const updatedPost = await prisma.post.update({
         where: {
             id: postId,
@@ -102,4 +99,14 @@ export async function updatePost(postId: string, userId: string, post: z.infer<t
 
     return updatedPost ?? null;
 
+}
+
+
+export async function getPostsByUserId(userId: string): Promise<Array<Post>|null> {
+    const posts = await prisma.post.findMany({
+        where: {
+            userId: userId
+        }
+    });
+    return posts ?? null;
 }

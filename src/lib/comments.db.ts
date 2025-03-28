@@ -10,11 +10,12 @@ export async function createComment(postId: string, userId: string, comment: str
         data: {
             postId: postId,
             userId: userId,
-            comment: comment
+            text: comment
         }
     });
     return newComment ?? null;
 }
+
 
 export async function deleteComment(commentId: string) {
     const comment = await prisma.comment.deleteMany({
@@ -31,8 +32,17 @@ export async function updateComment(commentId: string, comment: string) {
             id: commentId
         },
         data: {
-            comment: comment
+            text: comment
         }
     });
     return updatedComment ?? null;
+}
+
+export async function getCommentsByPostId(postId: string) {
+    const comments = await prisma.comment.findMany({
+        where: {
+            postId: postId
+        }
+    });
+    return comments ?? null;
 }

@@ -108,7 +108,7 @@ export async function validateUser(user: unknown) {
 }
 
 
-export async function updateUser(userId: string, body: z.infer<typeof createUserSchema>) {
+export async function updateUser(userId: string, body: z.infer<typeof createUserSchema>):Promise<User|null> {
     const safeUsername = xss(body.username);
     const safeEmail = xss(body.email);
     const safePassword = xss(body.password);
@@ -137,4 +137,6 @@ export async function deleteUser(userId: string) {
     });
     return user ?? null;
 }
+
+
 

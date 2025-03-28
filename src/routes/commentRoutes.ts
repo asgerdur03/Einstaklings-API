@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { deleteComment, updateComment, getAllComments, createComment} from "../lib/comments.db.js"
+import { deleteComment, updateComment, getAllComments, createComment, getCommentsByPostId} from "../lib/comments.db.js"
+import { date } from "zod";
 
 
 const commentRoutes = new Hono<{Variables: {user: AuthenticatedUser}}>();
@@ -10,27 +11,46 @@ interface AuthenticatedUser {
     admin: boolean;
 }
 
-
-
+//
 commentRoutes.get("/", async (c) => {
     const comments = await getAllComments();
-    // get comment by postId 
-
     return c.json({ data: comments });
 })
 
 commentRoutes.post("/", authMiddleware,async (c) => {
     // create a new comment
-    return c.json({ message: "POST /comments" });
+    const {postId, comment} = await c.req.json();
+    const user = c.get("user") as AuthenticatedUser;
+    const userId = user.id;
+
+    const newComment = await createComment(postId, userId, comment);
+    return c.json({ data: newComment });
 })
 
 commentRoutes.delete("/:id", authMiddleware, async (c) => {
-    // delete by id and userId is ...
+    const commentId = c.req.param("id");
+    await deleteComment(commentId);
     return c.json({ message: "DELETE /comments/:id" });
 })
 
 commentRoutes.patch("/:id", authMiddleware, async (c) => {
-    return c.json({ message: "PATCH /comments/:id" });
+    const commentId = c.req.param("id");
+    const data = await c.req.json();
+    
+
+    const comment = await updateComment(commentId, data.text);
+
+    return c.json({ data: comment });
+})
+
+commentRoutes.get("/:id", async (c) => {
+    const postId = c.req.param("id");
+
+    const comments = await getCommentsByPostId(postId);
+    const count = comments.length;
+
+
+    return c.json({ "data": comments, "count": count });
 })
 
 export default commentRoutes;

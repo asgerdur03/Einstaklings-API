@@ -2,7 +2,7 @@
 
 import { Hono } from "hono";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import {deletePost, updatePost, getAllPosts, getPostById, createPost} from "../lib/posts.db.js"
+import {deletePost, updatePost, getAllPosts, getPostById, createPost, getPostsByUserId} from "../lib/posts.db.js"
 
 const postRoutes = new Hono<{Variables: {user: AuthenticatedUser}}>()
 
@@ -64,6 +64,14 @@ postRoutes.delete("/:id", authMiddleware, async (c) => {
     await deletePost(postId, userId);
 
     return c.json({ message: "DELETE /posts/:id" });
+})
+
+postRoutes.get("/users/:id", async (c) => {
+    const userId = c.req.param("id");
+
+    const posts = await getPostsByUserId(userId);
+
+    return c.json({data: posts});
 })
 
 

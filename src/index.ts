@@ -17,10 +17,6 @@ app.notFound((c) => c.json({ error: 'Not found' }, 404));
 app.onError((err,c) => {
   console.error(err.name, err.message);
 
-  if (err.name === 'Malformed JSON in request body') {
-    return c.json({ error: 'Invalid JSON' }, 400);
-  }
-
   return c.json({ error: 'internal server error' }, 500);
 });
 

@@ -67,18 +67,6 @@ async function main() {
         )
     );
 
-    // Create 1 like per post by the last user
-    const allLikes = await Promise.all(
-        posts.map((post) =>
-            prisma.like.create({
-                data: {
-                    postId: post.id,
-                    userId: users[2].id,
-                },
-            })
-        )
-    );
-
     console.log('✅ Seed complete!');
 }
 
