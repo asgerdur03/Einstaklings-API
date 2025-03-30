@@ -2,7 +2,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 import bcrypt from 'bcrypt';
 
+
 async function main() {
+    
     // Create 3 users
     const hashedPassword = await bcrypt.hash('password', 10);
     const users = await Promise.all([
@@ -17,8 +19,8 @@ async function main() {
         }),
         prisma.user.create({
             data: {
-                username: 'slay',
-                email: 'slay',
+                username: 'user1',
+                email: 'user1@users.com',
                 password: hashedPassword,
                 admin: false,
                 profilePic: 'https://i.pravatar.cc/150?img=2',
@@ -33,7 +35,26 @@ async function main() {
                 profilePic: 'https://i.pravatar.cc/150?img=3',
             },
         }),
+        prisma.user.create({
+            data: {
+                username: 'meow',
+                email: 'meow@cats.com',
+                password: 'ilovecats',
+                admin: false,
+                profilePic: 'https://i.pravatar.cc/150?img=4',
+            },
+        }),
+        prisma.user.create({
+            data: {
+                username: 'rawr',
+                email: 'rawr@cats.com',
+                password: 'ilovecats',
+                admin: false,
+                profilePic: 'https://i.pravatar.cc/150?img=4',
+            },
+        })
     ]);
+
 
     // Create 3 posts (1 per user)
     const posts = await Promise.all(
@@ -41,7 +62,7 @@ async function main() {
             prisma.post.create({
                 data: {
                     userId: user.id,
-                    imageUrl: `https://picsum.photos/200/300?random=${i + 1}`,
+                    imageUrl: `https://cataas.com/cat/says/${user.username}`,
                     caption: `Post #${i + 1} by ${user.username}`,
                     color: 'CALICO',
                     mood: 'PLAYFUL',
@@ -60,7 +81,7 @@ async function main() {
                     data: {
                         postId: post.id,
                         userId: user.id,
-                        text: `Nice post, ${post.caption}!`,
+                        text: `Nice post!`,
                     },
                 })
             )

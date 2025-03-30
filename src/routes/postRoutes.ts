@@ -54,8 +54,6 @@ postRoutes.patch("/:id", authMiddleware, async (c) => {
 
     await updatePost(postId, userId, updatedPost);
 
-
-
     return c.json(updatedPost);
 })
 

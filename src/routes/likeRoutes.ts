@@ -32,9 +32,6 @@ likeRoutes.get("/:id", async (c) => {
     const postId = c.req.param("id");
 
     const likes = await getLikesByPostId(postId);
-
-    const count = likes.length;
-
     return c.json(likes);
 })
 

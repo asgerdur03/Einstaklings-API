@@ -110,7 +110,20 @@ export async function validateUser(user: unknown) {
 export async function updateUser(userId: string, body: z.infer<typeof createUserSchema>):Promise<User|null> {
     const safeUsername = xss(body.username);
     const safeEmail = xss(body.email);
-    const safePassword = xss(body.password);
+    let safePassword = xss(body.password);
+
+    const oldUser = await findUserById(userId);
+
+    if (!oldUser) {
+        return null;
+    }
+
+    if (safePassword !== oldUser.password) {
+        const password = await bcrypt.hash(safePassword, 10);
+        safePassword = password;
+    }else{
+        safePassword = oldUser.password;
+    }
 
 
     const user = await prisma.user.update({

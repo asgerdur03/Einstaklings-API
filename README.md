@@ -23,6 +23,10 @@ npx prisma db seed
 
 - Error handeling, so program returns error, but does not just crash
 - laga profile pic upload shit
+- Setja postman skrá í rót
+- setja api á render
+- setja upp .env.example skrá 
+
 ## Routes
 
 - [x] `/upload` Uploads images to cloudinary ✅
@@ -32,7 +36,7 @@ npx prisma db seed
 - [x] `POST /register` ✅
 - [x] `GET /` admin route, get all users ❌
 - [x] `GET /me` get logged in user (do not need for front end?) ❌ 
-- [x] `PATCH /me/` Edit logged in user info (nota id eða ekki?) 🟡
+- [x] `PATCH /me/` Edit logged in user info (nota id eða ekki?) 🟡✅
 - [x] `DELETE /me/` Delete my account + all data 🟡
 - [x] `GET /find/:id` Get user by id ✅
 ---

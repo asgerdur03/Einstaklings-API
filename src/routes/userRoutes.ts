@@ -106,7 +106,6 @@ userRoutes.delete("/me",  authMiddleware, async (c) => {
 
 userRoutes.get("/find/:id", async (c) => {
     const userId = c.req.param("id");
-    console.log(userId);
     const user = await findUserById(userId);
 
     return c.json(user);
