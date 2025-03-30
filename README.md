@@ -1,3 +1,7 @@
+# Einstaklingsverkefni Vefforritun 2 2025
+
+Þetta er RESTful API skrifaður með Hono, og notar Prisma fyrir gagnagrunsþjónustu, og Cloudinary fyrir myndageymslu.
+`postman` skrá með routes má finna í rót, ásamt `.env.example` skrá
 ```
 npm install
 npm run dev
@@ -19,13 +23,7 @@ npx prisma db push --force-reset
 npx prisma db seed
 
 ```
-## TODO
-
-- Error handeling, so program returns error, but does not just crash
-- laga profile pic upload shit
-- Setja postman skrá í rót
-- setja api á render
-- setja upp .env.example skrá 
+## Um verkefni
 
 ## Routes
 
