@@ -2,7 +2,9 @@
   "name": "einst",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/src/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
@@ -21,7 +23,8 @@
     "@types/node": "^20.11.17",
     "formidable": "^3.5.2",
     "prisma": "^6.4.1",
-    "tsx": "^4.7.1"
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.2"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
