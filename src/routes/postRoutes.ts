@@ -17,7 +17,17 @@ interface AuthenticatedUser {
 // all posts for feed, paginated ✅
 postRoutes.get("/", async (c) => {
     // not user specific, but to view you have to be logged in
-    const posts = await getAllPosts();
+    const query = c.req.query("offset") || 0;
+    let offset: number | undefined;
+    try {
+        offset = parseInt(c.req.query("offset")??"0") ?? 0;
+    } catch (error) {
+        return c.json({ error: "Invalid offset" }, 400);
+    }
+
+
+    const posts = await getAllPosts(10, offset);
+
 
     return c.json(posts);
 })

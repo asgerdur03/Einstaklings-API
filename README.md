@@ -1,14 +1,16 @@
 # Einstaklingsverkefni Vefforritun 2 2025
 
+https://einstaklings-api.onrender.com 
+
 Þetta er RESTful API skrifaður með Hono, og notar Prisma fyrir gagnagrunsþjónustu, og Cloudinary fyrir myndageymslu.
-`postman` skrá með routes má finna í rót, ásamt `.env.example` skrá
+`postman` skrá með routes má finna í rót, ásamt `.env.example` skrá. Einhverjar Breytingar hafa átt sér stað síðan sú skrá var skrifuð, en ætti að virka að mestu leiti
 ```
 npm install
 npm run dev
 ```
 
 ```
-open http://localhost:3000
+open http://localhost:5000
 ```
 
 prisma:

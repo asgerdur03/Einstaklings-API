@@ -43,8 +43,11 @@ export async function deletePost(postId: string, userId: string) {
 export async function getAllPosts(limit=10, offset?: number): Promise<Array<Post>|null> {
     const posts = await prisma.post.findMany(
         {
+            orderBy: {
+                createdAt: "desc"
+            },
             take: limit,
-            skip: offset,
+            skip: offset ?? 0,
         }
     );
     return posts ?? null;
