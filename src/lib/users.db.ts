@@ -126,14 +126,15 @@ export async function updateUser(userId: string, body: z.infer<typeof createUser
     }
 
 
+    // TODO: fix the update user, both in api and front
     const user = await prisma.user.update({
         where: {
             id: userId
         },
         data: {
-            username: safeUsername,
-            email: safeEmail,
-            password: safePassword,
+            //username: safeUsername,
+            //email: safeEmail,
+            //password: safePassword,
             profilePic: body.profilePic
         }
     });

@@ -32,6 +32,8 @@ app.get('/', (c) => {
 import { cloudinary } from './lib/cloudinary.js'
 
 app.post('/upload', async(c) => {
+
+  /*
   const body = await c.req.parseBody();
   const files = body.image;
 
@@ -42,6 +44,28 @@ app.post('/upload', async(c) => {
   }
 
   const fileArray = Array.isArray(files) ? files : [files];
+*/
+  const formData =await c.req.formData();
+  const file = formData.get('image');
+
+  if (!file || typeof file === 'string') {
+    return c.json({ error: 'No files uploaded' }, 400);
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const base64 = buffer.toString('base64');
+  const result = await cloudinary.uploader.upload(`data:${file.type};base64,${base64}`, {
+    resource_type: 'image',
+    folder: 'cats',
+  });
+  const processedImages = [{
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    url: result.secure_url
+  }]
+
+/*
 
   const processedImages = await Promise.all(
     fileArray.map(async (file) => {
@@ -62,7 +86,7 @@ app.post('/upload', async(c) => {
         url: result.secure_url
       }
     
-  }))
+  }))*/
   
   return c.json({image: processedImages});
   
